@@ -84,23 +84,67 @@ function drawElephant() {
 			scene.add( object );
 		}, onProgress, onError );
 
-	// loader = new THREE.ImageLoader( manager );
-	// loader.load( 'tex.jpg', function ( image ) {
-	// 	planeTex.image = image;
-	// 	planeTex.needsUpdate = true;
-	// } );
-	//
-	// loader = new THREE.OBJLoader( manager );
-	// 	loader.load( 'plane.obj', function ( object ) {
-	// 		object.traverse( function ( child ) {
-	// 			if ( child instanceof THREE.Mesh ) {
-	// 				child.material.map = planeTex;
-	// 				child.material.shininess = 0;
-	// 			}
-	// 		} );
-	// 		object.position.y = 500;
-	// 		scene.add( object );
-	// 	}, onProgress, onError );
+		var wallTexture = new THREE.Texture();
+
+		loader = new THREE.ImageLoader( manager );
+		loader.load( '/assets/ar_45.jpg', function ( image ) {
+				wallTexture.image = image;
+				wallTexture.needsUpdate = true;
+				wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping;
+	    	wallTexture.offset.set( 0, 0 );
+	    	wallTexture.repeat.set( 1, 1 );
+
+			} );
+
+		loader = new THREE.OBJLoader( manager );
+			loader.load( '/assets/Walls.obj', function ( object ) {
+				object.traverse( function ( child ) {
+					if ( child instanceof THREE.Mesh ) {
+						child.material.map = wallTexture;
+						child.scale.x = 30;
+						child.scale.y = 30;
+						child.scale.z = 30;
+					}
+				} );
+				object.position.y = 550;
+				scene.add( object );
+			}, onProgress, onError );
+
+		var roofTexture = new THREE.Texture();
+		loader = new THREE.ImageLoader( manager );
+		loader.load( '/assets/ar_48.png', function ( image ) {
+				roofTexture.image = image;
+				roofTexture.needsUpdate = true;
+
+			} );
+
+		loader = new THREE.OBJLoader( manager );
+			loader.load( '/assets/Roof.obj', function ( object ) {
+				object.traverse( function ( child ) {
+					if ( child instanceof THREE.Mesh ) {
+						child.material.map = roofTexture;
+						child.scale.x = 30;
+						child.scale.y = 30;
+						child.scale.z = 30;
+					}
+				} );
+				object.position.y = 550;
+				scene.add( object );
+			}, onProgress, onError );
+
+			loader = new THREE.OBJLoader(manager);
+				loader.load( '/assets/MainDoor.obj', function ( object ) {
+					object.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) {
+							// child.material.map = roofTexture;
+						}
+					} );
+					object.scale.x = 30;
+					object.scale.y = 32;
+					object.scale.z = 30;
+					object.position.y = 500;
+					scene.add( object );
+				}, onProgress, onError );
 
 }
 
