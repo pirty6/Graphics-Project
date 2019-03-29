@@ -57,17 +57,24 @@ function drawElephant() {
 	// var elephantTex = new THREE.Texture();
 	// var planeTex = new THREE.Texture();
 	//
-	// var loader = new THREE.ImageLoader( manager );
-	// loader.load( 'elephantColor.jpg', function ( image ) {
-	// 	elephantTex.image = image;
-	// 	elephantTex.needsUpdate = true;
-	// } );
 
-	var loader = new THREE.OBJLoader( manager );
-		loader.load( '/assets/Room.obj', function ( object ) {
+	var floorTexture = new THREE.Texture();
+
+	var loader = new THREE.ImageLoader( manager );
+	loader.load( '/assets/ar_11.jpg', function ( image ) {
+			floorTexture.image = image;
+			floorTexture.needsUpdate = true;
+			floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
+    	floorTexture.offset.set( 0, 0 );
+    	floorTexture.repeat.set( 2, 2 );
+
+		} );
+
+	loader = new THREE.OBJLoader( manager );
+		loader.load( '/assets/Floor.obj', function ( object ) {
 			object.traverse( function ( child ) {
 				if ( child instanceof THREE.Mesh ) {
-					// child.material.map = elephantTex;
+					child.material.map = floorTexture;
 					child.scale.x = 30;
 					child.scale.y = 30;
 					child.scale.z = 30;
