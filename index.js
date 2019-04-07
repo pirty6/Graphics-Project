@@ -8,7 +8,7 @@ Physijs.scripts.ammo = 'ammo.js';
 
 var camera, scene, renderer;
 var cameraControls;
-var ball, box;
+var ball;
 
 var friction = 0.4;
 var restitution = 0.6;
@@ -20,7 +20,7 @@ var rotSpeed = 0.01;
 
 function fillScene() {
   scene = new Physijs.Scene;
-  // scene.setGravity(new THREE.Vector3(0, gravity, 0));
+  scene.setGravity(new THREE.Vector3(0, gravity, 0));
   // LIGHTS
 
   scene.add(new THREE.AmbientLight(0x222222));
@@ -49,40 +49,56 @@ function fillScene() {
     color: 'yellow',
     wireframe: false
   });
-  // var ballMaterial = Physijs.createMaterial(
-  //   new THREE.MeshPhongMaterial({
-  //     color: 0xffffff,
-  //     transparent: false,
-  //     opacity: 0.1
-  //   }),
-  //   3.5,
-  //   0
-  // );
-  ball = new Physijs.BoxMesh(ballGeometry, ballMaterial, 0)
-  ball.setAngularFactor(THREE.Vector3(0,0,0));
-  // ball = new THREE.Mesh(ballGeometry, ballMaterial);
-  ball.position.x = 0;
+  ball = new Physijs.BoxMesh(ballGeometry, ballMaterial, 100)
   ball.position.y = 30;
   ball.position.z = 0;
   scene.add(ball);
 
 
-  var boxGeometry = new THREE.BoxGeometry(100, 100, 100)
+  var floorGeometry = new THREE.BoxGeometry(3000, 10, 3000)
   var transparentMaterial = Physijs.createMaterial(
     new THREE.MeshPhongMaterial({
-      color: 0xffffff,
+      color: 0x000000,
       transparent: false,
       opacity: 0.1
     }),
-    friction,
+    0,
     0
   );
-  box = new Physijs.BoxMesh(boxGeometry, transparentMaterial, 0);
+  var floor = new Physijs.BoxMesh(floorGeometry, transparentMaterial, 0);
 
-  box.position.x = 200;
-  box.position.y = 30;
-  box.position.z = 0;
-  scene.add(box);
+  floor.position.x = -500;
+  floor.position.y = -10;
+  floor.position.z = 0;
+  scene.add(floor);
+
+  var wallGeometry = new THREE.BoxGeometry(10, 2000, 3000)
+  var wall1 = new Physijs.BoxMesh(wallGeometry, transparentMaterial, 0);
+  wall1.position.x = 810;
+  wall1.position.y = 1000;
+  wall1.position.z = 10;
+  scene.add(wall1);
+
+  var wall2 = new Physijs.BoxMesh(wallGeometry, transparentMaterial, 0);
+  wall2.position.x = -1950;
+  wall2.position.y = 1000;
+  wall2.position.z = 0;
+  scene.add(wall2);
+
+  var wall3 = new Physijs.BoxMesh(wallGeometry, transparentMaterial, 0);
+  wall3.position.x = -600;
+  wall3.position.y = 1000;
+  wall3.position.z = 1350;
+  wall3.rotation.y = Math.PI / 2;
+  scene.add(wall3);
+
+  var wall4 = new Physijs.BoxMesh(wallGeometry, transparentMaterial, 0);
+  wall4.position.x = -600;
+  wall4.position.y = 1000;
+  wall4.position.z = -1470;
+  wall4.rotation.y = Math.PI / 2;
+  scene.add(wall4);
+
 
   drawElephant();
 }
@@ -112,9 +128,9 @@ function drawElephant() {
     objLoader.setPath('assets/');
     objLoader.load('Room.obj', function(object) {
       object.position.y = 0;
-      object.scale.z = 50;
-      object.scale.x = 50;
-      object.scale.y = 50;
+      object.scale.z = 80;
+      object.scale.x = 80;
+      object.scale.y = 80;
       scene.add(object);
     }, onProgress, onError);
   });
@@ -145,20 +161,24 @@ function init() {
   // CONTROLS
   cameraControls = new THREE.OrbitControls(camera);
   cameraControls.keys = {
-    LEFT: 4, //left arrow
-	  UP: 3, // up arrow
-	  RIGHT: 2, // right arrow
-	  BOTTOM: 1 // down arrow
+    LEFT: 4,
+	  UP: 3,
+	  RIGHT: 2,
+	  BOTTOM: 1
   }
   cameraControls.target.set(0, 500, 0);
 
 }
 
+var hewwo = -1;
+var keyPressed = false;
 
 function keyInput() {
   var x = camera.position.x,
     y = camera.position.y,
     z = camera.position.z;
+
+  var oldVector = ball.getLinearVelocity();
 
   if (keyboard.pressed("A")) {
     camera.position.x = x * Math.cos(rotSpeed) - z * Math.sin(rotSpeed);
@@ -169,20 +189,41 @@ function keyInput() {
     camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
   }
   if (keyboard.pressed("down")) {
-    ball.translateZ(5);
+    var ballVector = new THREE.Vector3(oldVector.x, oldVector.y, oldVector.z + 5);
+    ball.setLinearVelocity(ballVector);
+    keyPressed = true;
   }
 
-  // if (keyboard.pressed("up")) {
-  //   // ball.position.z = ball.position.z - 5;
-  //   ball.setLinearVelocity({z: -10, y:0,x:0});
-  // }
+  if (keyboard.pressed("up")) {
+    var ballVector = new THREE.Vector3(oldVector.x, oldVector.y, oldVector.z - 5);
+    ball.setLinearVelocity(ballVector);
+    keyPressed = true;
+  }
 
   if (keyboard.pressed("left")) {
-    ball.translateX(-5);
+    var ballVector = new THREE.Vector3(oldVector.x - 5, oldVector.y, oldVector.z);
+    ball.setLinearVelocity(ballVector);
+    keyPressed = true;
   }
 
   if (keyboard.pressed("right")) {
-    ball.translateX(5);
+    var ballVector = new THREE.Vector3(oldVector.x + 5, oldVector.y, oldVector.z);
+    ball.setLinearVelocity(ballVector);
+    keyPressed = true;
+  }
+  if (!keyPressed) {
+    ball.setLinearVelocity(new THREE.Vector3(
+        (oldVector.x > 0) ? oldVector.x - 1 : oldVector.x + 1,
+        oldVector.y,
+        (oldVector.z > 0) ? oldVector.z - 1 : oldVector.z + 1)
+      );
+  }
+
+  keyPressed = false;
+
+  if (hewwo < 0) {
+    hewwo++;
+    console.log(keyboard.pressed)
   }
 
 
@@ -209,7 +250,7 @@ function render() {
   const xAxis = new THREE.Vector3(1, 0, 0).normalize();
   const rotationStep = Math.PI / 180;
   // camera.position.applyAxisAngle(yAxis, xAxis);
-
+  ball.__dirtyPosition = true;
   cameraControls.update(delta);
   scene.simulate();
   renderer.render(scene, camera);
