@@ -8,11 +8,13 @@ Physijs.scripts.ammo = 'ammo.js';
 
 var camera, scene, renderer;
 var cameraControls;
-var ball;
+var ball, textureBall;
+var group = new THREE.Group(), offset = new THREE.Object3D();
 
 var friction = 0.4;
 var restitution = 0.6;
-var gravity = -50;
+var gravity = -500;
+var jumping = false;
 
 var clock = new THREE.Clock();
 var keyboard = new KeyboardState();
@@ -44,14 +46,24 @@ function fillScene() {
   axes.position.y = 1;
   scene.add(axes);
 
+  textureBall = THREE.ImageUtils.loadTexture( 'assets/Ball_Test.jpg' );
+  const loader = new THREE.TextureLoader();
+
+  textureBall.wrapS = THREE.RepeatWrapping;
+  textureBall.repeat.set( 2, 1 );
+
   var ballGeometry = new THREE.SphereGeometry(50, 50, 50);
   var ballMaterial = new THREE.MeshLambertMaterial({
     color: 'yellow',
-    wireframe: false
+    wireframe: false,
+    map: textureBall
   });
   ball = new Physijs.BoxMesh(ballGeometry, ballMaterial, 100)
   ball.position.y = 30;
   ball.position.z = 0;
+  ball.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+    jumping = false;
+  });
   scene.add(ball);
 
 
@@ -59,10 +71,10 @@ function fillScene() {
   var transparentMaterial = Physijs.createMaterial(
     new THREE.MeshPhongMaterial({
       color: 0x000000,
-      transparent: false,
-      opacity: 0.1
+      transparent: true,
+      opacity: 0
     }),
-    0,
+    0.4,
     0
   );
   var floor = new Physijs.BoxMesh(floorGeometry, transparentMaterial, 0);
@@ -99,7 +111,50 @@ function fillScene() {
   wall4.rotation.y = Math.PI / 2;
   scene.add(wall4);
 
+  var bed = new Physijs.BoxMesh(new THREE.BoxGeometry(1000, 300, 800), transparentMaterial, 0)
+  bed.position.x = -1300;
+  bed.position.y = 250;
+  bed.position.z = 1140;
+  scene.add(bed);
 
+  var redBox = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 320, 250), transparentMaterial, 0)
+  redBox.position.x = 100;
+  redBox.position.y = 40;
+  redBox.position.z = -1000;
+  scene.add(redBox)
+
+  var boxes1 = new Physijs.BoxMesh(new THREE.BoxGeometry(250, 150, 300), transparentMaterial, 0)
+  boxes1.position.x = -240;
+  boxes1.position.y = 40;
+  boxes1.position.z = -1200;
+  scene.add(boxes1)
+
+  var boxes2 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 70, 250), transparentMaterial, 0)
+  boxes2.position.x = -230;
+  boxes2.position.y = 200;
+  boxes2.position.z = -1300;
+  scene.add(boxes2)
+
+  var desk = new Physijs.BoxMesh(new THREE.BoxGeometry(800, 800, 500), transparentMaterial, 0)
+  desk.position.x = -750;
+  desk.position.y = 75;
+  desk.position.z = -1300;
+  scene.add(desk)
+
+  var shelf1 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 600, 600), transparentMaterial, 0)
+  shelf1.position.x = 580;
+  shelf1.position.y = 290;
+  shelf1.position.z = -450;
+  scene.add(shelf1)
+
+  var shelf2 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 270, 350), transparentMaterial, 0)
+  shelf2.position.x = -1930;
+  shelf2.position.y = 140;
+  shelf2.position.z = -1170;
+  scene.add(shelf2)
+
+  // group.add(ball)
+  // scene.add(group)
   drawElephant();
 }
 
@@ -156,7 +211,7 @@ function init() {
 
   // CAMERA
   camera = new THREE.PerspectiveCamera(45, canvasRatio, 0.1, 10000);
-  camera.position.set(0, -10, 0);
+  camera.position.set(-10, -10, 0);
 
   // CONTROLS
   cameraControls = new THREE.OrbitControls(camera);
@@ -167,10 +222,8 @@ function init() {
 	  BOTTOM: 1
   }
   cameraControls.target.set(0, 500, 0);
-
 }
 
-var hewwo = -1;
 var keyPressed = false;
 
 function keyInput() {
@@ -191,25 +244,36 @@ function keyInput() {
   if (keyboard.pressed("down")) {
     var ballVector = new THREE.Vector3(oldVector.x, oldVector.y, oldVector.z + 5);
     ball.setLinearVelocity(ballVector);
+    ball.rotation.x += 0.1;
     keyPressed = true;
   }
 
   if (keyboard.pressed("up")) {
     var ballVector = new THREE.Vector3(oldVector.x, oldVector.y, oldVector.z - 5);
     ball.setLinearVelocity(ballVector);
+    ball.rotation.x -= 0.1;
     keyPressed = true;
   }
 
+  // TODO: Correct Rotation for legt and right
   if (keyboard.pressed("left")) {
     var ballVector = new THREE.Vector3(oldVector.x - 5, oldVector.y, oldVector.z);
     ball.setLinearVelocity(ballVector);
+    ball.rotation.x += 0.1;
     keyPressed = true;
   }
 
   if (keyboard.pressed("right")) {
     var ballVector = new THREE.Vector3(oldVector.x + 5, oldVector.y, oldVector.z);
     ball.setLinearVelocity(ballVector);
+    ball.rotation.x -= 0.1;
     keyPressed = true;
+  }
+  if (keyboard.down("space") && !jumping) {
+    var jump = new THREE.Vector3(oldVector.x, 50000, oldVector.z);
+    ball.applyCentralImpulse(jump)
+    keyPressed = true;
+    jumping = true;
   }
   if (!keyPressed) {
     ball.setLinearVelocity(new THREE.Vector3(
@@ -218,16 +282,9 @@ function keyInput() {
         (oldVector.z > 0) ? oldVector.z - 1 : oldVector.z + 1)
       );
   }
-
   keyPressed = false;
-
-  if (hewwo < 0) {
-    hewwo++;
-    console.log(keyboard.pressed)
-  }
-
-
-  camera.lookAt(scene.position);
+  // ball.add(camera)
+  // camera.lookAt(ball.position);
 }
 
 
@@ -251,8 +308,10 @@ function render() {
   const rotationStep = Math.PI / 180;
   // camera.position.applyAxisAngle(yAxis, xAxis);
   ball.__dirtyPosition = true;
+  ball.__dirtyRotation = true;
   cameraControls.update(delta);
   scene.simulate();
+  camera.lookAt(ball.position)
   renderer.render(scene, camera);
 }
 
