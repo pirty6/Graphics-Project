@@ -53,12 +53,16 @@ function fillScene() {
   textureBall.repeat.set( 2, 1 );
 
   var ballGeometry = new THREE.SphereGeometry(50, 50, 50);
-  var ballMaterial = new THREE.MeshLambertMaterial({
+  var ballMaterial = Physijs.createMaterial(
+    new THREE.MeshLambertMaterial({
     color: 'yellow',
     wireframe: false,
     map: textureBall
-  });
-  ball = new Physijs.BoxMesh(ballGeometry, ballMaterial, 100)
+  }),
+  0.4,
+  0.6
+  );
+  ball = new Physijs.SphereMesh(ballGeometry, ballMaterial, 100)
   ball.position.y = 30;
   ball.position.z = 0;
   ball.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
@@ -69,13 +73,13 @@ function fillScene() {
 
   var floorGeometry = new THREE.BoxGeometry(3000, 10, 3000)
   var transparentMaterial = Physijs.createMaterial(
-    new THREE.MeshPhongMaterial({
+    new THREE.MeshBasicMaterial({
       color: 0x000000,
       transparent: true,
       opacity: 0
     }),
     0.4,
-    0
+    0.6
   );
   var floor = new Physijs.BoxMesh(floorGeometry, transparentMaterial, 0);
 
@@ -111,6 +115,7 @@ function fillScene() {
   wall4.rotation.y = Math.PI / 2;
   scene.add(wall4);
 
+  // TODO: Fix bed position
   var bed = new Physijs.BoxMesh(new THREE.BoxGeometry(1000, 300, 800), transparentMaterial, 0)
   bed.position.x = -1300;
   bed.position.y = 250;
@@ -193,6 +198,11 @@ function drawElephant() {
 
 }
 
+function chaseMesh(camera, mesh) {
+    camera.position.z = mesh.position.z;
+    camera.lookAt(mesh.position);
+}
+
 function init() {
   // var canvasWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
   // var canvasHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
@@ -244,29 +254,24 @@ function keyInput() {
   if (keyboard.pressed("down")) {
     var ballVector = new THREE.Vector3(oldVector.x, oldVector.y, oldVector.z + 5);
     ball.setLinearVelocity(ballVector);
-    ball.rotation.x += 0.1;
     keyPressed = true;
   }
 
   if (keyboard.pressed("up")) {
     var ballVector = new THREE.Vector3(oldVector.x, oldVector.y, oldVector.z - 5);
     ball.setLinearVelocity(ballVector);
-    ball.rotation.x -= 0.1;
     keyPressed = true;
   }
 
-  // TODO: Correct Rotation for legt and right
   if (keyboard.pressed("left")) {
     var ballVector = new THREE.Vector3(oldVector.x - 5, oldVector.y, oldVector.z);
     ball.setLinearVelocity(ballVector);
-    ball.rotation.x += 0.1;
     keyPressed = true;
   }
 
   if (keyboard.pressed("right")) {
     var ballVector = new THREE.Vector3(oldVector.x + 5, oldVector.y, oldVector.z);
     ball.setLinearVelocity(ballVector);
-    ball.rotation.x -= 0.1;
     keyPressed = true;
   }
   if (keyboard.down("space") && !jumping) {
