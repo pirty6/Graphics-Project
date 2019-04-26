@@ -3,11 +3,11 @@
 
 'use strict';
 
-Physijs.scripts.worker = '/js/physijs_worker.js';
+Physijs.scripts.worker = './js/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
 
 var camera, scene, renderer;
-var cameraControls;
+var cameraControls, cameraView = 0, once = 0, change = 0;
 var ball, textureBall;
 var group = new THREE.Group(), offset = new THREE.Object3D();
 
@@ -115,9 +115,8 @@ function fillScene() {
   wall4.rotation.y = Math.PI / 2;
   scene.add(wall4);
 
-  // TODO: Fix bed position
-  var bed = new Physijs.BoxMesh(new THREE.BoxGeometry(1000, 300, 800), transparentMaterial, 0)
-  bed.position.x = -1300;
+  var bed = new Physijs.BoxMesh(new THREE.BoxGeometry(1100, 300, 800), transparentMaterial, 0)
+  bed.position.x = -1400;
   bed.position.y = 250;
   bed.position.z = 1140;
   scene.add(bed);
@@ -137,8 +136,11 @@ function fillScene() {
   var boxes2 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 70, 250), transparentMaterial, 0)
   boxes2.position.x = -230;
   boxes2.position.y = 200;
-  boxes2.position.z = -1300;
+  boxes2.position.z = -1250;
   scene.add(boxes2)
+
+  var boxes3 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 200, 200), transparentMaterial, 0)
+  // boxes3.position.x =
 
   var desk = new Physijs.BoxMesh(new THREE.BoxGeometry(800, 800, 500), transparentMaterial, 0)
   desk.position.x = -750;
@@ -157,9 +159,6 @@ function fillScene() {
   shelf2.position.y = 140;
   shelf2.position.z = -1170;
   scene.add(shelf2)
-
-  // group.add(ball)
-  // scene.add(group)
   drawElephant();
 }
 
@@ -221,7 +220,7 @@ function init() {
 
   // CAMERA
   camera = new THREE.PerspectiveCamera(45, canvasRatio, 0.1, 10000);
-  camera.position.set(-10, -10, 0);
+  // camera.position.set(-319.10, 1128.72, 1073.32);
 
   // CONTROLS
   cameraControls = new THREE.OrbitControls(camera);
@@ -269,11 +268,23 @@ function keyInput() {
     keyPressed = true;
   }
 
+
   if (keyboard.pressed("right")) {
     var ballVector = new THREE.Vector3(oldVector.x + 5, oldVector.y, oldVector.z);
     ball.setLinearVelocity(ballVector);
     keyPressed = true;
   }
+
+  if (keyboard.down("E")) {
+    console.log(camera.position)
+    once = 0;
+    if (cameraView === 2){
+      cameraView = 0;
+    } else {
+      cameraView++;
+    }
+  }
+
   if (keyboard.down("space") && !jumping) {
     var jump = new THREE.Vector3(oldVector.x, 50000, oldVector.z);
     ball.applyCentralImpulse(jump)
@@ -305,6 +316,7 @@ function animate() {
   keyInput();
   render();
 }
+var hewwo = 0;
 
 function render() {
   var delta = clock.getDelta();
@@ -317,6 +329,21 @@ function render() {
   cameraControls.update(delta);
   scene.simulate();
   camera.lookAt(ball.position)
+  if (cameraView == 0) {
+    if (once === 0) {
+      camera.position.set(-319.10, 1128.72, 1073.32);
+      once++;
+    }
+  } else if (cameraView == 1) {
+    var ballPosition = ball.position;
+    var cameraPosition = camera.position;
+    if (once === 0) {
+      camera.position.set(ballPosition.x, ballPosition.y, ballPosition.z + 500)
+      once++;
+    } else {
+      // camera.position.set(cameraPosition.x , ballPosition.y, cameraPosition.z)
+    }
+  }
   renderer.render(scene, camera);
 }
 
