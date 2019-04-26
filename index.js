@@ -71,10 +71,11 @@ function fillScene() {
 
   goal = new THREE.Object3D;
   goal.add(ball);
+  goal.add(camera);
 
   goal.position.set(0, 2, -2);
-
-  scene.add(ball);
+  scene.add(ball)
+  scene.add(goal);
 
 
   var floorGeometry = new THREE.BoxGeometry(3000, 10, 3000)
@@ -201,6 +202,20 @@ function drawElephant() {
     }, onProgress, onError);
   });
 
+  // Load Woody
+  var loader = new THREE.FBXLoader();
+  // loader.load( 'assets/Samba Dancing.fbx', function ( object ) {
+  //   mixer = new THREE.AnimationMixer( object );
+	// 	var action = mixer.clipAction( object.animations[ 0 ] );
+	// 	action.play();
+	// 	object.traverse( function ( child ) {
+	// 		if ( child.isMesh ) {
+	// 			child.castShadow = true;
+	// 			child.receiveShadow = true;
+	// 		}
+	// 	} );
+	// 	scene.add( object );
+	// } );
 
 }
 
@@ -306,8 +321,6 @@ function keyInput() {
       );
   }
   keyPressed = false;
-  // ball.add(camera)
-  // camera.lookAt(ball.position);
 }
 
 
@@ -323,7 +336,6 @@ function animate() {
   keyInput();
   render();
 }
-var hewwo = 0;
 
 function render() {
   var delta = clock.getDelta();
@@ -337,20 +349,25 @@ function render() {
   scene.simulate();
   goal.position.set(ball.position.x, ball.position.y, ball.position.z)
   if (cameraView === 0) {
-    camera.position.set(-319.10, 1128.72, 1073.32);
+    if (once === 0) {
+      camera.position.set(-319.10, 1128.72, 1073.32);
+      once++;
+    }
   } else if (cameraView === 1) {
-    camera.position.set(goal.position.x, goal.position.y, goal.position.z)
+    if (once === 0) {
+      camera.position.set(ball.position.x, ball.position.y, ball.position.z)
+      ball.visible = false;
+      once++;
+    }
+    // console.log(camera.position)
   } else if (cameraView === 2) {
-    camera.position.set(goal.position.x, goal.position.y, goal.position.z + 500)
+    if (once === 0) {
+      ball.visible = true;
+      camera.position.set(goal.position.x, goal.position.y, goal.position.z + 500)
+      once++;
+    }
   }
-  // if (cameraView === 0) {
-  // } else if (cameraView === 1) {
-  //   camera.position.set(ball.position.x, ball.position.y, ball.position.z)
-  // }
-  // else if (cameraView === 2){
-  //   var ballPosition = ball.position;
-  // }
-  camera.lookAt(goal.position)
+  camera.lookAt(ball.position)
   renderer.render(scene, camera);
 }
 
