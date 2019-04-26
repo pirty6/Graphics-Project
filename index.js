@@ -7,7 +7,7 @@ Physijs.scripts.worker = './js/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
 
 var camera, scene, renderer;
-var cameraControls, cameraView = 0, once = 0, change = 0;
+var cameraControls, cameraView = 0, once = 0, goal;
 var ball, textureBall;
 var group = new THREE.Group(), offset = new THREE.Object3D();
 
@@ -68,6 +68,12 @@ function fillScene() {
   ball.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
     jumping = false;
   });
+
+  goal = new THREE.Object3D;
+  goal.add(ball);
+
+  goal.position.set(0, 2, -2);
+
   scene.add(ball);
 
 
@@ -84,7 +90,7 @@ function fillScene() {
   var floor = new Physijs.BoxMesh(floorGeometry, transparentMaterial, 0);
 
   floor.position.x = -500;
-  floor.position.y = -10;
+  floor.position.y = -5;
   floor.position.z = 0;
   scene.add(floor);
 
@@ -159,6 +165,7 @@ function fillScene() {
   shelf2.position.y = 140;
   shelf2.position.z = -1170;
   scene.add(shelf2)
+
   drawElephant();
 }
 
@@ -328,22 +335,22 @@ function render() {
   ball.__dirtyRotation = true;
   cameraControls.update(delta);
   scene.simulate();
-  camera.lookAt(ball.position)
-  if (cameraView == 0) {
-    if (once === 0) {
-      camera.position.set(-319.10, 1128.72, 1073.32);
-      once++;
-    }
-  } else if (cameraView == 1) {
-    var ballPosition = ball.position;
-    var cameraPosition = camera.position;
-    if (once === 0) {
-      camera.position.set(ballPosition.x, ballPosition.y, ballPosition.z + 500)
-      once++;
-    } else {
-      // camera.position.set(cameraPosition.x , ballPosition.y, cameraPosition.z)
-    }
+  goal.position.set(ball.position.x, ball.position.y, ball.position.z)
+  if (cameraView === 0) {
+    camera.position.set(-319.10, 1128.72, 1073.32);
+  } else if (cameraView === 1) {
+    camera.position.set(goal.position.x, goal.position.y, goal.position.z)
+  } else if (cameraView === 2) {
+    camera.position.set(goal.position.x, goal.position.y, goal.position.z + 500)
   }
+  // if (cameraView === 0) {
+  // } else if (cameraView === 1) {
+  //   camera.position.set(ball.position.x, ball.position.y, ball.position.z)
+  // }
+  // else if (cameraView === 2){
+  //   var ballPosition = ball.position;
+  // }
+  camera.lookAt(goal.position)
   renderer.render(scene, camera);
 }
 
