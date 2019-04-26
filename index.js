@@ -272,6 +272,7 @@ function keyInput() {
     camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
     camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
   }
+
   if (keyboard.pressed("down")) {
     var ballVector = new THREE.Vector3(oldVector.x, oldVector.y, oldVector.z + 5);
     ball.setLinearVelocity(ballVector);
@@ -337,6 +338,14 @@ function animate() {
   render();
 }
 
+function getCenterPoint(mesh) {
+    var geometry = mesh.geometry;
+    geometry.computeBoundingBox();
+    var center = geometry.boundingBox.getCenter();
+    mesh.localToWorld( center );
+    return center;
+}
+
 function render() {
   var delta = clock.getDelta();
   const yAxis = new THREE.Vector3(0, 1, 0).normalize();
@@ -355,11 +364,11 @@ function render() {
     }
   } else if (cameraView === 1) {
     if (once === 0) {
-      camera.position.set(ball.position.x, ball.position.y, ball.position.z)
+      var center = getCenterPoint(ball)
+      camera.position.set(center.x, center.y, center.z)
       ball.visible = false;
       once++;
     }
-    // console.log(camera.position)
   } else if (cameraView === 2) {
     if (once === 0) {
       ball.visible = true;
