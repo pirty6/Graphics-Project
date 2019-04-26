@@ -7,8 +7,8 @@ Physijs.scripts.worker = './js/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
 
 var camera, scene, renderer;
-var cameraControls, cameraView = 0, once = 0, change = 0;
-var ball, textureBall;
+var cameraControls, cameraView = 0, once = 0, goal;
+var ball, textureBall, mixer, mix;
 var group = new THREE.Group(), offset = new THREE.Object3D();
 
 var friction = 0.4;
@@ -68,7 +68,14 @@ function fillScene() {
   ball.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
     jumping = false;
   });
-  scene.add(ball);
+
+  goal = new THREE.Object3D;
+  goal.add(ball);
+  goal.add(camera);
+
+  goal.position.set(0, 2, -2);
+  scene.add(ball)
+  scene.add(goal);
 
 
   var floorGeometry = new THREE.BoxGeometry(3000, 10, 3000)
@@ -84,7 +91,7 @@ function fillScene() {
   var floor = new Physijs.BoxMesh(floorGeometry, transparentMaterial, 0);
 
   floor.position.x = -500;
-  floor.position.y = -10;
+  floor.position.y = -5;
   floor.position.z = 0;
   scene.add(floor);
 
@@ -159,6 +166,7 @@ function fillScene() {
   shelf2.position.y = 140;
   shelf2.position.z = -1170;
   scene.add(shelf2)
+
   drawElephant();
 }
 
@@ -177,6 +185,49 @@ function drawElephant() {
   };
   var onError = function(xhr) {};
 
+  // Load Woody
+  var loader = new THREE.FBXLoader();
+  loader.load( 'assets/Looking_Around.fbx', function ( object ) {
+    console.log(object)
+    mixer = new THREE.AnimationMixer( object );
+    var action = mixer.clipAction( object.animations[ 0 ] );
+    action.play();
+    object.traverse( function ( child ) {
+      if ( child.isMesh ) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    } );
+    object.scale.z = 80;
+    object.scale.x = 80;
+    object.scale.y = 80;
+    object.position.y = 10;
+    object.position.z =-500;
+    scene.add( object );
+  } );
+
+  // Load Lotso
+  loader = new THREE.FBXLoader();
+  loader.load( 'assets/Breathing_Idle.fbx', function ( object ) {
+    console.log(object)
+    mix = new THREE.AnimationMixer( object );
+    var action = mix.clipAction( object.animations[ 0 ] );
+    action.play();
+    object.traverse( function ( child ) {
+      if ( child.isMesh ) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    } );
+    object.scale.z = 80;
+    object.scale.x = 80;
+    object.scale.y = 80;
+    object.position.y = 475;
+    object.position.x = -900;
+    object.position.z = -1300;
+    scene.add( object );
+  } );
+
   // Load The Room
   var mtlLoader = new THREE.MTLLoader();
   mtlLoader.setPath('assets/');
@@ -194,7 +245,6 @@ function drawElephant() {
     }, onProgress, onError);
   });
 
-
 }
 
 function chaseMesh(camera, mesh) {
@@ -205,7 +255,7 @@ function chaseMesh(camera, mesh) {
 function init() {
   // var canvasWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
   // var canvasHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-  var canvasWidth = 600;
+  var canvasWidth = 800;
   var canvasHeight = 600;
   var canvasRatio = canvasWidth / canvasHeight;
 
@@ -220,7 +270,6 @@ function init() {
 
   // CAMERA
   camera = new THREE.PerspectiveCamera(45, canvasRatio, 0.1, 10000);
-  // camera.position.set(-319.10, 1128.72, 1073.32);
 
   // CONTROLS
   cameraControls = new THREE.OrbitControls(camera);
@@ -250,6 +299,7 @@ function keyInput() {
     camera.position.x = x * Math.cos(rotSpeed) + z * Math.sin(rotSpeed);
     camera.position.z = z * Math.cos(rotSpeed) - x * Math.sin(rotSpeed);
   }
+
   if (keyboard.pressed("down")) {
     var ballVector = new THREE.Vector3(oldVector.x, oldVector.y, oldVector.z + 5);
     ball.setLinearVelocity(ballVector);
@@ -299,8 +349,6 @@ function keyInput() {
       );
   }
   keyPressed = false;
-  // ball.add(camera)
-  // camera.lookAt(ball.position);
 }
 
 
@@ -313,10 +361,20 @@ function addToDOM() {
 function animate() {
   keyboard.update();
   window.requestAnimationFrame(animate);
+  var delta = clock.getDelta();
+	if ( mixer ) mixer.update( delta );
+  if ( mix ) mix.update( delta );
   keyInput();
   render();
 }
-var hewwo = 0;
+
+function getCenterPoint(mesh) {
+    var geometry = mesh.geometry;
+    geometry.computeBoundingBox();
+    var center = geometry.boundingBox.getCenter();
+    mesh.localToWorld( center );
+    return center;
+}
 
 function render() {
   var delta = clock.getDelta();
@@ -328,22 +386,27 @@ function render() {
   ball.__dirtyRotation = true;
   cameraControls.update(delta);
   scene.simulate();
-  camera.lookAt(ball.position)
-  if (cameraView == 0) {
+  goal.position.set(ball.position.x, ball.position.y, ball.position.z)
+  if (cameraView === 0) {
     if (once === 0) {
       camera.position.set(-319.10, 1128.72, 1073.32);
       once++;
     }
-  } else if (cameraView == 1) {
-    var ballPosition = ball.position;
-    var cameraPosition = camera.position;
+  } else if (cameraView === 1) {
     if (once === 0) {
-      camera.position.set(ballPosition.x, ballPosition.y, ballPosition.z + 500)
+      var center = getCenterPoint(ball)
+      camera.position.set(center.x, center.y, center.z)
+      ball.visible = false;
       once++;
-    } else {
-      // camera.position.set(cameraPosition.x , ballPosition.y, cameraPosition.z)
+    }
+  } else if (cameraView === 2) {
+    if (once === 0) {
+      ball.visible = true;
+      camera.position.set(goal.position.x, goal.position.y, goal.position.z + 500)
+      once++;
     }
   }
+  camera.lookAt(ball.position)
   renderer.render(scene, camera);
 }
 
