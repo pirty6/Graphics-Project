@@ -8,7 +8,7 @@ Physijs.scripts.ammo = 'ammo.js';
 
 var camera, scene, renderer;
 var cameraControls, cameraView = 0, once = 0, goal;
-var ball, textureBall;
+var ball, textureBall, mixer;
 var group = new THREE.Group(), offset = new THREE.Object3D();
 
 var friction = 0.4;
@@ -185,6 +185,27 @@ function drawElephant() {
   };
   var onError = function(xhr) {};
 
+  // Load Woody
+  var loader = new THREE.FBXLoader();
+  loader.load( 'assets/Looking_Around.fbx', function ( object ) {
+    console.log(object)
+    mixer = new THREE.AnimationMixer( object );
+    var action = mixer.clipAction( object.animations[ 0 ] );
+    action.play();
+    object.traverse( function ( child ) {
+      if ( child.isMesh ) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    } );
+    object.scale.z = 80;
+    object.scale.x = 80;
+    object.scale.y = 80;
+    object.position.y = 10;
+    object.position.z =-500;
+    scene.add( object );
+  } );
+
   // Load The Room
   var mtlLoader = new THREE.MTLLoader();
   mtlLoader.setPath('assets/');
@@ -202,21 +223,6 @@ function drawElephant() {
     }, onProgress, onError);
   });
 
-  // Load Woody
-  var loader = new THREE.FBXLoader();
-  // loader.load( 'assets/Samba Dancing.fbx', function ( object ) {
-  //   mixer = new THREE.AnimationMixer( object );
-	// 	var action = mixer.clipAction( object.animations[ 0 ] );
-	// 	action.play();
-	// 	object.traverse( function ( child ) {
-	// 		if ( child.isMesh ) {
-	// 			child.castShadow = true;
-	// 			child.receiveShadow = true;
-	// 		}
-	// 	} );
-	// 	scene.add( object );
-	// } );
-
 }
 
 function chaseMesh(camera, mesh) {
@@ -227,7 +233,7 @@ function chaseMesh(camera, mesh) {
 function init() {
   // var canvasWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
   // var canvasHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-  var canvasWidth = 600;
+  var canvasWidth = 800;
   var canvasHeight = 600;
   var canvasRatio = canvasWidth / canvasHeight;
 
@@ -242,7 +248,6 @@ function init() {
 
   // CAMERA
   camera = new THREE.PerspectiveCamera(45, canvasRatio, 0.1, 10000);
-  // camera.position.set(-319.10, 1128.72, 1073.32);
 
   // CONTROLS
   cameraControls = new THREE.OrbitControls(camera);
@@ -334,6 +339,8 @@ function addToDOM() {
 function animate() {
   keyboard.update();
   window.requestAnimationFrame(animate);
+  var delta = clock.getDelta();
+	if ( mixer ) mixer.update( delta );
   keyInput();
   render();
 }
