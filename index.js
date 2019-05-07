@@ -97,7 +97,7 @@ function fillScene() {
 
   var wallGeometry = new THREE.BoxGeometry(10, 2000, 3000)
   var wall1 = new Physijs.BoxMesh(wallGeometry, transparentMaterial, 0);
-  wall1.position.x = 810;
+  wall1.position.x = 780;
   wall1.position.y = 1000;
   wall1.position.z = 10;
   scene.add(wall1);
@@ -122,34 +122,43 @@ function fillScene() {
   wall4.rotation.y = Math.PI / 2;
   scene.add(wall4);
 
-  var bed = new Physijs.BoxMesh(new THREE.BoxGeometry(1100, 300, 800), transparentMaterial, 0)
+  var bed = new Physijs.BoxMesh(new THREE.BoxGeometry(1100, 740, 800), transparentMaterial, 0)
   bed.position.x = -1400;
-  bed.position.y = 250;
+  bed.position.y = 40;
   bed.position.z = 1140;
   scene.add(bed);
+
+  var bed2 = new Physijs.BoxMesh(new THREE.BoxGeometry(50, 800, 800), transparentMaterial, 0)
+  bed2.position.x = -800;
+  bed2.position.y = 200;
+  bed2.position.z = 1140;
+  scene.add(bed2);
 
   var redBox = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 320, 250), transparentMaterial, 0)
   redBox.position.x = 100;
   redBox.position.y = 40;
-  redBox.position.z = -1000;
+  redBox.position.z = -980;
   scene.add(redBox)
 
-  var boxes1 = new Physijs.BoxMesh(new THREE.BoxGeometry(250, 150, 300), transparentMaterial, 0)
+  var boxes1 = new Physijs.BoxMesh(new THREE.BoxGeometry(250, 150, 200), transparentMaterial, 0)
   boxes1.position.x = -240;
-  boxes1.position.y = 40;
-  boxes1.position.z = -1200;
+  boxes1.position.y = 150;
+  boxes1.position.z = -1250;
   scene.add(boxes1)
 
-  var boxes2 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 70, 250), transparentMaterial, 0)
-  boxes2.position.x = -230;
-  boxes2.position.y = 200;
-  boxes2.position.z = -1250;
+  var boxes2 = new Physijs.BoxMesh(new THREE.BoxGeometry(190, 140, 500), transparentMaterial, 0)
+  boxes2.position.x = -260;
+  boxes2.position.y = 40;
+  boxes2.position.z = -1300;
   scene.add(boxes2)
 
-  var boxes3 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 200, 200), transparentMaterial, 0)
-  // boxes3.position.x =
+  var boxes3 = new Physijs.BoxMesh(new THREE.BoxGeometry(210, 380, 180), transparentMaterial, 0)
+  boxes3.position.x = 20;
+  boxes3.position.y = 40;
+  boxes3.position.z = -1300;
+  scene.add(boxes3)
 
-  var desk = new Physijs.BoxMesh(new THREE.BoxGeometry(800, 800, 500), transparentMaterial, 0)
+  var desk = new Physijs.BoxMesh(new THREE.BoxGeometry(800, 785, 510), transparentMaterial, 0)
   desk.position.x = -750;
   desk.position.y = 75;
   desk.position.z = -1300;
@@ -161,11 +170,72 @@ function fillScene() {
   shelf1.position.z = -450;
   scene.add(shelf1)
 
-  var shelf2 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 270, 350), transparentMaterial, 0)
+  var shelf2 = new Physijs.BoxMesh(new THREE.BoxGeometry(300, 270, 320), transparentMaterial, 0)
   shelf2.position.x = -1930;
   shelf2.position.y = 140;
   shelf2.position.z = -1170;
   scene.add(shelf2)
+
+  var shelf3 = new Physijs.BoxMesh(new THREE.BoxGeometry(330, 1250, 1200), transparentMaterial, 0)
+  shelf3.position.x = 700;
+  shelf3.position.y = 140;
+  shelf3.position.z = 1350;
+  scene.add(shelf3)
+
+  var shelf3a = new Physijs.BoxMesh(new THREE.BoxGeometry(600, 125, 1200), transparentMaterial, 0)
+  shelf3a.position.x = 700;
+  shelf3a.position.y = 200;
+  shelf3a.position.z = 1350;
+  scene.add(shelf3a)
+
+  var trashcan1 = new Physijs.BoxMesh(new THREE.BoxGeometry(10, 350, 160), transparentMaterial, 0)
+  trashcan1.position.x = -1320;
+  trashcan1.position.y = 40;
+  trashcan1.position.z = -1300;
+  scene.add(trashcan1)
+
+  var trashcan2 = new Physijs.BoxMesh(new THREE.BoxGeometry(100,350 ,10), transparentMaterial, 0)
+  trashcan2.position.x = -1200;
+  trashcan2.position.y = 40;
+  trashcan2.position.z = -1240;
+  scene.add(trashcan2)
+
+  var chair = new Physijs.BoxMesh(new THREE.BoxGeometry(270,370 ,300), transparentMaterial, 0)
+  chair.position.x = -650;
+  chair.position.y = 40;
+  chair.position.z = -1000;
+  scene.add(chair)
+
+  var chairUp1 = new Physijs.BoxMesh(new THREE.BoxGeometry(40,200 ,10), transparentMaterial, 0)
+  chairUp1.position.x = -645;
+  chairUp1.position.y = 370;
+  chairUp1.position.z = -840;
+  scene.add(chairUp1)
+
+  var chairUp2 = new Physijs.BoxMesh(new THREE.BoxGeometry(270,50 ,20), transparentMaterial, 0)
+  chairUp2.position.x = -650;
+  chairUp2.position.y = 440;
+  chairUp2.position.z = -840;
+  scene.add(chairUp2)
+
+  var carriage = new Physijs.BoxMesh(new THREE.BoxGeometry(550,600,660), transparentMaterial, 0)
+  carriage.position.x = -1950;
+  carriage.position.y = 40;
+  carriage.position.z = 110;
+  scene.add(carriage)
+
+  var window1 = new Physijs.BoxMesh(new THREE.BoxGeometry(270,40,810), transparentMaterial, 0)
+  window1.position.x = -1950;
+  window1.position.y = 450;
+  window1.position.z = 15;
+  scene.add(window1)
+
+  var table = new Physijs.BoxMesh(new THREE.BoxGeometry(200,40,300), transparentMaterial, 0)
+  table.position.x = -1950;
+  table.position.y = 410;
+  table.position.z = 550;
+  scene.add(table)
+
 
   drawElephant();
 }
