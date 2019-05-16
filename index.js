@@ -6,6 +6,8 @@
 Physijs.scripts.worker = './js/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
 
+var counter = 0;
+
 var camera, scene, renderer;
 var cameraControls, cameraView = 0, once = 0, goal;
 var ball, textureBall, mixer, mix;
@@ -67,6 +69,44 @@ function fillScene() {
   ball.position.z = 0;
   ball.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
     jumping = false;
+
+    if (other_object.name == "woody") {
+      alert("Hello! I am woody, you have collected " + counter + "/3 coins.");
+    }
+
+    if (other_object.name == "lotzo") {
+      var rand = Math.floor(Math.random() * 3);
+
+      if (rand == 0) {
+        alert("Hint: I am so sleepy... zzz zzz zzz");
+      } else if (rand == 1) {
+        alert("Hint: You are trash at this game... Booo");
+      } else {
+        alert("Hint: Where would Wheezy be??");
+      }
+    }
+
+    if(other_object.name.includes("coin")) {
+      if(other_object.name == "coin-bed-col"){
+        console.log("Remove coin-bed-obj");
+        scene.remove(scene.getObjectByName("coin-bed-obj"));
+      } else if (other_object.name == "coin-bin-col") {
+        console.log("Remove coin-bin-obj");
+        scene.remove(scene.getObjectByName("coin-bin-obj"));
+      } else {
+        console.log("Remove coin-shelf-obj");
+        scene.remove(scene.getObjectByName("coin-shelf-obj"));
+      }
+
+      scene.remove(scene.getObjectByName(other_object.name));
+
+      counter++;
+
+      if (counter == 3) {
+        alert("You have found all the coins!!");
+      }
+    }
+
   });
 
   goal = new THREE.Object3D;
@@ -76,7 +116,6 @@ function fillScene() {
   goal.position.set(0, 2, -2);
   scene.add(ball)
   scene.add(goal);
-
 
   var floorGeometry = new THREE.BoxGeometry(3000, 10, 3000)
   var transparentMaterial = Physijs.createMaterial(
@@ -236,8 +275,124 @@ function fillScene() {
   table.position.z = 550;
   scene.add(table)
 
+  // Used for debugging the collision object.
+  var ground_material = Physijs.createMaterial(
+		new THREE.MeshLambertMaterial({ color: 0x888888 }),
+		.8, // high friction
+		.4 // low restitution
+	);
+
+  var shelfCoin = new Physijs.BoxMesh(new THREE.BoxGeometry(350,30,400), transparentMaterial, 0)
+  shelfCoin.position.x = 615;
+  shelfCoin.position.y = 685;
+  shelfCoin.position.z = -1240;
+  scene.add(shelfCoin)
+
+  var coinShelf = new Physijs.BoxMesh(new THREE.BoxGeometry(10,40,40), transparentMaterial, 0)
+  coinShelf.name = "coin-shelf-col";
+  coinShelf.position.x = 615;
+  coinShelf.position.y = 725;
+  coinShelf.position.z = -1240;
+  coinShelf.rotation.y = Math.PI / 2;
+  scene.add(coinShelf)
+
+  var coinBed = new Physijs.BoxMesh(new THREE.BoxGeometry(10, 40, 40), transparentMaterial, 0)
+  coinBed.name = "coin-bed-col";
+  coinBed.position.x = -1465;
+  coinBed.position.y = 505;
+  coinBed.position.z = 1050;
+  coinBed.rotation.y = Math.PI / 2;
+  scene.add(coinBed)
+
+  var coinBin = new Physijs.BoxMesh(new THREE.BoxGeometry(10, 40, 40), transparentMaterial, 0)
+  coinBin.name = "coin-bin-col";
+  coinBin.position.x = -1235;
+  coinBin.position.y = 125;
+  coinBin.position.z = -1370;
+  coinBin.rotation.y = Math.PI / 2;
+  scene.add(coinBin)
+
+  var woody = new Physijs.BoxMesh(new THREE.BoxGeometry(10,150,10), transparentMaterial, 0)
+  woody.name = "woody";
+  woody.position.x = 0;
+  woody.position.y = 75;
+  woody.position.z = -500;
+  scene.add(woody)
+
+  var lotzo = new Physijs.BoxMesh(new THREE.BoxGeometry(90,225,50), transparentMaterial, 0)
+  lotzo.name = "lotzo";
+  lotzo.position.x = -900;
+  lotzo.position.y = 525;
+  lotzo.position.z = -1300;
+  scene.add(lotzo)
 
   drawElephant();
+  coins();
+}
+
+function coins() {
+
+  var loadCoin = new THREE.OBJLoader();
+
+  loadCoin.setPath('assets/');
+  loadCoin.load('coin.obj', function(object) {
+
+    object.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+        child.material.color.setHex(0xFFFF00);
+      }
+    });
+
+    object.name = "coin-bed-obj";
+    object.rotation.y = Math.PI / 2;
+    object.scale.z = 100;
+    object.scale.x = 100;
+    object.scale.y = 100;
+    object.position.x = -1500;
+    object.position.y = 370;
+    object.position.z = 1140;
+    scene.add(object);
+  });
+
+  loadCoin.setPath('assets/');
+  loadCoin.load('coin.obj', function(object) {
+
+    object.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+        child.material.color.setHex(0xFFFF00);
+      }
+    });
+
+    object.name = "coin-bin-obj";
+    object.rotation.y = Math.PI / 2;
+    object.scale.z = 100;
+    object.scale.x = 100;
+    object.scale.y = 100;
+    object.position.x = -1270;
+    object.position.y = -10;
+    object.position.z = -1280;
+    scene.add(object);
+  });
+
+  loadCoin.setPath('assets/');
+  loadCoin.load('coin.obj', function(object) {
+
+    object.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+        child.material.color.setHex(0xFFFF00);
+      }
+    });
+
+    object.name = "coin-shelf-obj";
+    object.rotation.y = Math.PI / 2;
+    object.scale.z = 100;
+    object.scale.x = 100;
+    object.scale.y = 100;
+    object.position.x = 575;
+    object.position.y = 600;
+    object.position.z = -1150;
+    scene.add(object);
+  });
 }
 
 function drawElephant() {
@@ -350,6 +505,7 @@ function init() {
 	  BOTTOM: 1
   }
   cameraControls.target.set(0, 500, 0);
+  cameraControls.enabled = false;
 }
 
 var keyPressed = false;
@@ -387,7 +543,6 @@ function keyInput() {
     ball.setLinearVelocity(ballVector);
     keyPressed = true;
   }
-
 
   if (keyboard.pressed("right")) {
     var ballVector = new THREE.Vector3(oldVector.x + 5, oldVector.y, oldVector.z);
