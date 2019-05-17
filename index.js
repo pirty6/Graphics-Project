@@ -326,6 +326,12 @@ function fillScene() {
   lotzo.position.z = -1300;
   scene.add(lotzo)
 
+  var laptop = new Physijs.BoxMesh(new THREE.BoxGeometry(200,180,10), transparentMaterial, 0)
+  laptop.position.x = -500;
+  laptop.position.y = 525;
+  laptop.position.z = -1390;
+  scene.add(laptop)
+
   drawElephant();
   coins();
 }
@@ -505,7 +511,7 @@ function init() {
 	  BOTTOM: 1
   }
   cameraControls.target.set(0, 500, 0);
-  // cameraControls.enabled = true;
+  cameraControls.enabled = false;
 }
 
 var keyPressed = false;
