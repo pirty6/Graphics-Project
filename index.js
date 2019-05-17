@@ -505,7 +505,7 @@ function init() {
 	  BOTTOM: 1
   }
   cameraControls.target.set(0, 500, 0);
-  cameraControls.enabled = false;
+  // cameraControls.enabled = true;
 }
 
 var keyPressed = false;
